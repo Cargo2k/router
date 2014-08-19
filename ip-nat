@@ -1,0 +1,64 @@
+#!/bin/sh -e
+
+. /lib/lsb/init-functions
+
+start_rules() {
+	# The interface to listen to
+	IFIN=eth0
+	# The interface to forward out to
+	IFOUT=wlan0
+	
+	# Get the subnet for the in interface then prep it for the rules
+	SUBADDR=`ifconfig $IFIN | grep -Po 'inet addr:\K([[:digit:]]{1,3}\.){3}'`
+	SUBADDR=${SUBADDR}0/24
+
+	# make sure port forwarding is on
+	/bin/echo "1" > /proc/sys/net/ipv4/ip_forward
+
+	#add the rules to the iptables
+	iptables -t nat -P POSTROUTING ACCEPT
+	iptables -t nat -P PREROUTING ACCEPT
+	iptables -A FORWARD -s ${SUBADDR} -d 0/0 -j ACCEPT
+	iptables -A FORWARD -m state --state ESTABLISHED,RELATED -d ${SUBADDR} -j ACCEPT
+	iptables -t nat -A POSTROUTING -o ${IFOUT} -s ${SUBADDR} -j MASQUERADE
+
+	return 0
+}
+
+stop_rules() {
+	iptables -F FORWARD
+}
+
+case "$1" in
+start)
+	log_action_begin_msg "Starting NAT services"
+	start_rules
+	log_action_end_msg $?
+	;;
+
+stop)
+	log_action_begin_msg "Stopping NAT services"
+	stop_rules
+	log_action_end_msg $?
+	;;
+
+reload)
+	log_action_begin_msg "Restarting NAT services"
+	stop_rules
+	start_rules
+	log_action_end_msg $?
+	;;
+
+force-reload|restart)
+	log_action_begin_msg "Restarting NAT services"
+	stop_rules
+	start_rules
+	log_action_end_msg $?
+	;;
+
+*)
+	echo "Usage: /etc/init.d/networking {start|stop|reload|restart|force-reload}"
+	exit 1
+	;;
+esac
+
