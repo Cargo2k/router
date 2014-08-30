@@ -1,6 +1,14 @@
-#!/bin/sh -e
-IFIN="eth0"
+#!/bin/bash
 
-STRING=`ifconfig $IFIN | grep -Po 'inet addr:\K([[:digit:]]{1,3}\.){3}'`
+argv=("$@")
+argc=$#
+
+if [ $argc -eq 0 ]; then
+	echo "Tests an interface for its class c ipv4 address"
+	echo "Usage: iftest interface"
+	exit;
+fi
+
+STRING=`ifconfig ${argv[0]} | grep -Po 'inet addr:\K([[:digit:]]{1,3}\.){3}'`
 
 echo $STRING

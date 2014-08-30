@@ -1,4 +1,14 @@
-#!/bin/sh -e
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          ip-nat
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts and stops ip-nat services.
+# Description:       Starts and stops ip-nat services, installs the iptable rules for NAT services. 
+### END INIT INFO
 
 . /lib/lsb/init-functions
 
@@ -9,8 +19,9 @@ start_rules() {
 	IFOUT=wlan0
 	
 	# Get the subnet for the in interface then prep it for the rules
-	SUBADDR=`ifconfig $IFIN | grep -Po 'inet addr:\K([[:digit:]]{1,3}\.){3}'`
+	SUBADDR=`iftest ${IFIN}`
 	SUBADDR=${SUBADDR}0/24
+	echo $SUBADDR
 
 	# make sure port forwarding is on
 	/bin/echo "1" > /proc/sys/net/ipv4/ip_forward
