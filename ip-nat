@@ -10,6 +10,17 @@
 # Description:       Starts and stops ip-nat services, installs the iptable rules for NAT services. 
 ### END INIT INFO
 
+### Install info 
+# I installed into /etc/init.d/, and added the command /etc/init.d/ip-nat $1
+# to the end of each of the start/stop commands in /etc/init.d/networking
+
+# the script will also need iftest installed with in the systems path, i installed to /sbin/
+
+# finally you will have to point the in script variables IFIN and IFOUT to the proper devices listed in /etc/network/interfaces
+
+# now you should be able to start the ipmasq service with the command service start ip-nat
+# if installed as described it will also start along side the networking service
+
 . /lib/lsb/init-functions
 
 start_rules() {
@@ -21,7 +32,6 @@ start_rules() {
 	# Get the subnet for the in interface then prep it for the rules
 	SUBADDR=`iftest ${IFIN}`
 	SUBADDR=${SUBADDR}0/24
-	echo $SUBADDR
 
 	# make sure port forwarding is on
 	/bin/echo "1" > /proc/sys/net/ipv4/ip_forward
@@ -68,7 +78,7 @@ force-reload|restart)
 	;;
 
 *)
-	echo "Usage: /etc/init.d/networking {start|stop|reload|restart|force-reload}"
+	echo "Usage: /etc/init.d/ip-nat {start|stop|reload|restart|force-reload}"
 	exit 1
 	;;
 esac

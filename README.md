@@ -14,6 +14,7 @@ Included in this project are several config files and convinence scripts
 
 **Configuration Files**
 - **smb.conf** the base configuration for smbd, includes the cifs file sharing and netbios services
+- **dnsmasq.conf** Dnsmasq's provides dhcp server and local dns services
 
 **Convinence Scripts**
 - **ifreset** calls ifdown then if reset for the specified device
